@@ -9,7 +9,6 @@ import plotly.graph_objects as go
 import pandas as pd
 from pvlib import solarposition
 
-
 __author__ = "Vegard Ulriksen Solberg"
 __email__ = "vegardsolberg@hotmail.com"
 
@@ -82,3 +81,62 @@ def create_map(date="2020.02.05", lat=59.946247, lon=10.761360):
     )
 
     fig.show()
+
+
+def create_scattermap(today_data):
+    hours = [str(hour) for hour in today_data.index.hour]
+
+    return go.Scattermapbox(
+        lat=today_data["lat"],
+        lon=today_data["lon"],
+        mode="markers+text",
+        marker=go.scattermapbox.Marker(size=22, color="orange"),
+        text=hours,
+        name="Hour of the day",
+        textfont=dict(family="sans serif", size=18, color="black"),
+    )
+
+
+def create_animated_map(lat=59.946247, lon=10.761360):
+    mapbox_access_token = open("mapbox_token.txt").read()
+
+    fig = go.Figure(data=go.Scattermapbox(
+        lat=[lat],
+        lon=[lon],
+        mode='markers+text',
+        name="Position",
+        marker=go.scattermapbox.Marker(
+            size=14,
+            color="blue"
+        )
+    ),
+        layout=go.Layout(autosize=True,
+                         hovermode='closest',
+                         height=700,
+                         mapbox=go.layout.Mapbox(
+                             accesstoken=mapbox_access_token,
+                             bearing=0,
+                             center=go.layout.mapbox.Center(
+                                 lat=lat,
+                                 lon=lon
+                             ),
+                             pitch=0,
+                             zoom=16
+                         ),
+                         updatemenus=[dict(type="buttons",
+                                           buttons=[dict(label="Play",
+                                                         method="animate",
+                                                         args=[None])])]),
+        frames=[go.Frame(
+            data=[create_scattermap(create_today_data(date)) for date in ["2020.02.05",
+                                                                          "2020.03.05",
+                                                                          "2020.04.05",
+                                                                          "2020.05.05",
+                                                                          "2020.06.05"]])
+        ],
+    )
+
+    fig.show()
+
+
+create_animated_map()
