@@ -9,6 +9,11 @@ import plotly.graph_objects as go
 import pandas as pd
 from pvlib import solarposition
 
+import dash_bootstrap_components as dbc
+import dash_core_components as dcc
+
+import dash_html_components as html
+
 __author__ = "Vegard Ulriksen Solberg"
 __email__ = "vegardsolberg@hotmail.com"
 
@@ -41,9 +46,9 @@ def create_today_data(date="2020.02.05", lat=59.946247, lon=10.761360, c=0.001):
 
 
 def create_map(date="2020.02.05", lat=59.946247, lon=10.761360):
-    today_data = create_today_data(date=date)
+    today_data = create_today_data(date=date, lat=lat, lon=lon)
     hours = [str(hour) for hour in today_data.index.hour]
-    mapbox_access_token = open("mapbox_token.txt").read()
+    mapbox_access_token = open("src\\mapbox_token.txt").read()
 
     fig = go.Figure(
         go.Scattermapbox(
@@ -72,6 +77,7 @@ def create_map(date="2020.02.05", lat=59.946247, lon=10.761360):
         hovermode="closest",
         height=700,
         mapbox=go.layout.Mapbox(
+            style="outdoors",
             accesstoken=mapbox_access_token,
             bearing=0,
             center=go.layout.mapbox.Center(lat=lat, lon=lon),
@@ -80,7 +86,7 @@ def create_map(date="2020.02.05", lat=59.946247, lon=10.761360):
         ),
     )
 
-    fig.show()
+    return fig
 
 
 def create_scattermap(today_data):
@@ -90,7 +96,7 @@ def create_scattermap(today_data):
         lat=today_data["lat"],
         lon=today_data["lon"],
         mode="markers+text",
-        marker=go.scattermapbox.Marker(size=22, color="orange"),
+        marker=go.scattermapbox.Marker(size=22, color="yellow"),
         text=hours,
         name="Hour of the day",
         textfont=dict(family="sans serif", size=18, color="black"),
@@ -100,43 +106,79 @@ def create_scattermap(today_data):
 def create_animated_map(lat=59.946247, lon=10.761360):
     mapbox_access_token = open("mapbox_token.txt").read()
 
-    fig = go.Figure(data=go.Scattermapbox(
-        lat=[lat],
-        lon=[lon],
-        mode='markers+text',
-        name="Position",
-        marker=go.scattermapbox.Marker(
-            size=14,
-            color="blue"
-        )
-    ),
-        layout=go.Layout(autosize=True,
-                         hovermode='closest',
-                         height=700,
-                         mapbox=go.layout.Mapbox(
-                             accesstoken=mapbox_access_token,
-                             bearing=0,
-                             center=go.layout.mapbox.Center(
-                                 lat=lat,
-                                 lon=lon
-                             ),
-                             pitch=0,
-                             zoom=16
-                         ),
-                         updatemenus=[dict(type="buttons",
-                                           buttons=[dict(label="Play",
-                                                         method="animate",
-                                                         args=[None])])]),
-        frames=[go.Frame(
-            data=[create_scattermap(create_today_data(date)) for date in ["2020.02.05",
-                                                                          "2020.03.05",
-                                                                          "2020.04.05",
-                                                                          "2020.05.05",
-                                                                          "2020.06.05"]])
+    fig = go.Figure(
+        data=go.Scattermapbox(
+            lat=[lat],
+            lon=[lon],
+            mode="markers+text",
+            name="Position",
+            marker=go.scattermapbox.Marker(size=14, color="blue"),
+        ),
+        layout=go.Layout(
+            autosize=True,
+            hovermode="closest",
+            height=700,
+            mapbox=go.layout.Mapbox(
+                accesstoken=mapbox_access_token,
+                bearing=0,
+                center=go.layout.mapbox.Center(lat=lat, lon=lon),
+                pitch=0,
+                zoom=16,
+            ),
+            updatemenus=[
+                dict(
+                    type="buttons",
+                    buttons=[dict(label="Play", method="animate", args=[None])],
+                )
+            ],
+        ),
+        frames=[
+            go.Frame(
+                data=[
+                    create_scattermap(create_today_data(date))
+                    for date in [
+                        "2020.02.05",
+                        "2020.03.05",
+                        "2020.04.05",
+                        "2020.05.05",
+                        "2020.06.05",
+                    ]
+                ]
+            )
         ],
     )
 
     fig.show()
 
 
-create_animated_map()
+month_map = {
+    1: "jan",
+    2: "feb",
+    3: "mar",
+    4: "april",
+    5: "may",
+    6: "june",
+    7: "july",
+    8: "aug",
+    9: "sep",
+    10: "oct",
+    11: "nov",
+    12: "dec",
+}
+
+card_month_slider = [
+    dbc.CardBody(
+        [
+            html.H5("Select month", className="card-title"),
+            html.P("Pull the slider to see the month", className="card-text"),
+            dcc.Slider(
+                id="month-slider",
+                min=1,
+                max=12,
+                step=1,
+                value=1,
+                marks={k: month_map[k] for k in range(1, 13)},
+            ),
+        ]
+    )
+]
