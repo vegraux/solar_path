@@ -16,7 +16,9 @@ import dash_core_components as dcc
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-LAT, LON = 63.420862, 10.502749
+# LAT, LON = 63.420862, 10.502749 # Trondheim
+LAT, LON = 59.946247,10.761360 # Oslo
+
 
 
 layout = html.Div(
