@@ -13,6 +13,7 @@ pandas = "*"
 dash = "*"
 dash-bootstrap-components = "*"
 pvlib = "*"
+geopy = "*"
 
 [requires]
 python_version = "3.7"
