@@ -43,7 +43,7 @@ def create_today_data(date="2020.02.05", lat=59.946247, lon=10.761360, c=0.001):
     return today_data
 
 
-def create_map(date="2020.02.05", lat=59.946247, lon=10.761360):
+def create_map(date="2020.02.05", lat=59.946247, lon=10.761360, map_style="outdoors"):
     today_data = create_today_data(date=date, lat=lat, lon=lon)
     hours = [str(hour) for hour in today_data.index.hour]
     mapbox_access_token = open("src\\mapbox_token.txt").read()
@@ -75,7 +75,7 @@ def create_map(date="2020.02.05", lat=59.946247, lon=10.761360):
         hovermode="closest",
         height=700,
         mapbox=go.layout.Mapbox(
-            style="outdoors",
+            style=map_style,
             accesstoken=mapbox_access_token,
             bearing=0,
             center=go.layout.mapbox.Center(lat=lat, lon=lon),

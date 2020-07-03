@@ -35,3 +35,49 @@ card_month_slider = [
         ]
     )
 ]
+
+map_styles_token = [
+    "satellite",
+    "satellite-streets",
+    "basic",
+    "streets",
+    "outdoors",
+    "light",
+    "dark",
+    "open-street-map",
+]
+map_styles_free = [
+    "carto-positron",
+    "carto-darkmatter",
+    "stamen-terrain",
+    "stamen-toner",
+    "stamen-watercolor",
+]
+
+all_map_styles = map_styles_token + map_styles_free
+
+
+def create_dbc_dropdown():
+    """Nice looking, but unpractical to use in callbacks"""
+
+    dropdown = [dbc.DropdownMenuItem("No token required", header=True)]
+    dropdown.extend([dbc.DropdownMenuItem(map_style) for map_style in map_styles_free])
+    dropdown.extend(
+        [
+            dbc.DropdownMenuItem(divider=True),
+            dbc.DropdownMenuItem("Token required", header=True),
+        ]
+    )
+    dropdown.extend([dbc.DropdownMenuItem(map_style) for map_style in map_styles_token])
+    return dbc.DropdownMenu(dropdown, label="Map style", id="map-style-dropdown")
+
+
+def create_dropdown():
+    return (
+        dcc.Dropdown(
+            id="dropdown-mapstyles",
+            options=[{"label": style, "value": style} for style in all_map_styles],
+            # value='outdoors',
+            placeholder="Select map style",
+        ),
+    )
