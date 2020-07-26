@@ -77,7 +77,6 @@ def create_dropdown():
         dcc.Dropdown(
             id="dropdown-mapstyles",
             options=[{"label": style, "value": style} for style in all_map_styles],
-            # value='outdoors',
             placeholder="Select map style",
         ),
     )

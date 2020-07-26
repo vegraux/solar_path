@@ -82,6 +82,7 @@ def create_map(date="2020.02.05", lat=59.946247, lon=10.761360, map_style="outdo
             pitch=0,
             zoom=16,
         ),
+        margin=dict(l=10, r=10, b=10, t=10),
     )
 
     return fig
@@ -152,5 +153,5 @@ def create_animated_map(lat=59.946247, lon=10.761360):
 def get_coordinates(location: str) -> List[float]:
     geo_location: geopy.location.Location = LOCATOR.geocode(location)
     if geo_location is None:
-        print("Location not found, try again")
+        raise ValueError("Geo location not found")
     return [geo_location.latitude, geo_location.longitude]

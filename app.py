@@ -3,19 +3,18 @@
 """
 
 """
-from dash.dependencies import Output, Input, State
-
 __author__ = "Vegard Ulriksen Solberg"
 __email__ = "vegardsolberg@hotmail.com"
 
 import dash
+from dash.dependencies import Output, Input, State
 import dash_bootstrap_components as dbc
 from src.utils import create_map, get_coordinates
 from src.items import card_month_slider, create_dbc_dropdown, create_dropdown
 import dash_html_components as html
 import dash_core_components as dcc
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
 
 # LAT, LON = 63.420862, 10.502749 # Trondheim
 # LAT, LON = 59.946247, 10.761360  # Oslo
@@ -60,7 +59,14 @@ layout = html.Div(
                 )
             ]
         ),
-        dbc.Row(dbc.Col(dcc.Graph(id="map-fig", figure=create_map(lat=LAT, lon=LON)))),
+        dbc.Row(
+            dbc.Col(
+                dcc.Graph(
+                    id="map-fig",
+                    figure=create_map(lat=LAT, lon=LON, map_style="outdoors"),
+                )
+            )
+        ),
     ]
 )
 
@@ -81,13 +87,15 @@ app.layout = dbc.Container(layout)
     ],
 )
 def update_data(month, button, map_style, location, lat, lon):
-    if location is None and lat is None and lon is None:
+    if lat is not None and lon is not None:
+        pass
+
+    elif location is not None and (lat is None and lon is None):
+        lat, lon = get_coordinates(location)
+
+    else:
         lat, lon = LAT, LON
 
-    elif lat is not None and lon is not None:
-        create_map(lat=lat, lon=lon, date=f"2020.{month}.01", map_style=map_style)
-    else:
-        lat, lon = get_coordinates(location)
     return create_map(lat=lat, lon=lon, date=f"2020.{month}.01", map_style=map_style)
 
 
