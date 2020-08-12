@@ -59,14 +59,9 @@ layout = html.Div(
                 )
             ]
         ),
-        dbc.Row(
-            dbc.Col(
-                dcc.Graph(
-                    id="map-fig",
-                    figure=create_map(lat=LAT, lon=LON, map_style="outdoors"),
-                )
-            )
-        ),
+        dbc.Row(dbc.Col(dcc.Graph(id="map-fig", figure=create_map(lat=LAT, lon=LON)))),
+        html.Br(),
+        html.Br(),
     ]
 )
 
@@ -100,5 +95,4 @@ def update_data(month, button, map_style, location, lat, lon):
 
 
 if __name__ == "__main__":
-    create_dbc_dropdown()
     app.run_server(port=8051, debug=True)
