@@ -6,19 +6,31 @@
 __author__ = "Vegard Ulriksen Solberg"
 __email__ = "vegardsolberg@hotmail.com"
 
+import datetime
+
 import dash
 from dash.dependencies import Output, Input, State
 import dash_bootstrap_components as dbc
-from src.utils import create_map, get_coordinates
-from src.items import card_month_slider, create_dbc_dropdown, create_dropdown
+from src.utils import (
+    create_map,
+    get_coordinates,
+    analemma_figure,
+    sunrise_figure,
+    determine_lat_lon,
+)
+from src.items import (
+    card_month_slider,
+    create_dropdown_mapstyles,
+    create_dropdown_timezones,
+    LAT,
+    LON,
+)
 import dash_html_components as html
 import dash_core_components as dcc
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
 
-# LAT, LON = 63.420862, 10.502749 # Trondheim
-# LAT, LON = 59.946247, 10.761360  # Oslo
-LAT, LON = 62.688885, 9.88625  # Hytta Oppdal
+YEAR = datetime.datetime.today().year
 layout = html.Div(
     [
         dbc.Row(dbc.Col(html.H1(id="header", children="Solar path"))),
@@ -27,7 +39,6 @@ layout = html.Div(
                 html.P(id="info-text", children="Explore the suns path for a location")
             )
         ),
-        dbc.Row(dbc.Col(dbc.Card(card_month_slider, color="light", inverse=False))),
         html.Br(),
         dbc.Row(
             [
@@ -40,6 +51,7 @@ layout = html.Div(
                 )
             ]
         ),
+        html.Br(),
         dbc.Row(
             [
                 dbc.Col(
@@ -48,18 +60,17 @@ layout = html.Div(
                 dbc.Col(
                     dbc.Input(id="lon-input", type="number", placeholder="Longitude")
                 ),
-                dbc.Col(create_dropdown()),
-            ]
-        ),
-        html.Br(),
-        dbc.Row(
-            [
+                dbc.Col(create_dropdown_mapstyles()),
+                dbc.Col(create_dropdown_timezones()),
                 dbc.Col(
                     dbc.Button(id="submit-button-state", n_clicks=0, children="Submit")
-                )
+                ),
             ]
         ),
-        dbc.Row(dbc.Col(dcc.Graph(id="map-fig", figure=create_map(lat=LAT, lon=LON)))),
+        dbc.Row(dbc.Col(dbc.Card(card_month_slider, color="light", inverse=False))),
+        dcc.Graph(id="map-fig"),
+        dcc.Graph(id="sunrise-fig"),
+        dcc.Graph(id="analemma-fig"),
         html.Br(),
         html.Br(),
     ]
@@ -72,8 +83,10 @@ app.layout = dbc.Container(layout)
     Output("map-fig", "figure"),
     [
         Input("month-slider", "value"),
+        Input("day-slider", "value"),
         Input("submit-button-state", "n_clicks"),
         Input("dropdown-mapstyles", "value"),
+        Input("dropdown-timezones", "value"),
     ],
     [
         State("location-input", "value"),
@@ -81,17 +94,40 @@ app.layout = dbc.Container(layout)
         State("lon-input", "value"),
     ],
 )
-def update_data(month, button, map_style, location, lat, lon):
-    if lat is not None and lon is not None:
-        pass
+def update_map_figure(month, day, button, map_style, timezone, location, lat, lon):
+    lat, lon = determine_lat_lon(lat, lon, location)
+    date = f"{YEAR}.{month:0>2}.{day:0>2}"
+    return create_map(
+        lat=lat, lon=lon, date=date, map_style=map_style, timezone=timezone
+    )
 
-    elif location is not None and (lat is None and lon is None):
-        lat, lon = get_coordinates(location)
 
-    else:
-        lat, lon = LAT, LON
+@app.callback(
+    Output("analemma-fig", "figure"),
+    [Input("submit-button-state", "n_clicks"), Input("dropdown-timezones", "value")],
+    [
+        State("location-input", "value"),
+        State("lat-input", "value"),
+        State("lon-input", "value"),
+    ],
+)
+def update_analemma_figure(button, timezone, location, lat, lon):
+    lat, lon = determine_lat_lon(lat, lon, location)
+    return analemma_figure(lat=lat, lon=lon, timezone=timezone)
 
-    return create_map(lat=lat, lon=lon, date=f"2020.{month}.01", map_style=map_style)
+
+@app.callback(
+    Output("sunrise-fig", "figure"),
+    [Input("submit-button-state", "n_clicks"), Input("dropdown-timezones", "value")],
+    [
+        State("location-input", "value"),
+        State("lat-input", "value"),
+        State("lon-input", "value"),
+    ],
+)
+def update_sunrise_figure(button, timezone, location, lat, lon):
+    lat, lon = determine_lat_lon(lat, lon, location)
+    return sunrise_figure(lat=lat, lon=lon, timezone=timezone)
 
 
 if __name__ == "__main__":

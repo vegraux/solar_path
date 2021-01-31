@@ -1,9 +1,16 @@
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import pytz
 from geopy.geocoders import Nominatim
 
-LOCATOR: Nominatim = Nominatim(user_agent="myGeocoder")
+LOCATOR = Nominatim(user_agent="myGeocoder")
+
+# LAT, LON = 63.420862, 10.502749 # Trondheim
+# LAT, LON = 59.946247, 10.761360  # Oslo
+LAT, LON = 59.940606, 10.758659  # Larviksgata
+
+# LAT, LON = 62.688885, 9.88625  # Hytta Oppdal
 
 month_map = {
     1: "jan",
@@ -22,8 +29,8 @@ month_map = {
 card_month_slider = [
     dbc.CardBody(
         [
-            html.H5("Select month", className="card-title"),
-            html.P("Pull the slider to see the month", className="card-text"),
+            html.H5("Select month and day", className="card-title"),
+            html.P("Pull the sliders to change month and day", className="card-text"),
             dcc.Slider(
                 id="month-slider",
                 min=1,
@@ -32,13 +39,22 @@ card_month_slider = [
                 value=1,
                 marks={k: month_map[k] for k in range(1, 13)},
             ),
+            dcc.Slider(
+                id="day-slider",
+                min=1,
+                max=31,
+                step=1,
+                value=1,
+                marks={k: str(k) for k in range(1, 32)},
+            ),
         ]
     )
 ]
 
+
 map_styles_token = [
-    "satellite",
     "satellite-streets",
+    "satellite",
     "basic",
     "streets",
     "outdoors",
@@ -57,6 +73,13 @@ map_styles_free = [
 all_map_styles = map_styles_token + map_styles_free
 
 
+def all_timezones():
+    timezones = [k for k in pytz.all_timezones]
+    timezones.remove("Europe/Oslo")
+    timezones.remove("UTC")
+    return ["Europe/Oslo", "UTC"] + timezones
+
+
 def create_dbc_dropdown():
     """Nice looking, but unpractical to use in callbacks"""
 
@@ -72,11 +95,23 @@ def create_dbc_dropdown():
     return dbc.DropdownMenu(dropdown, label="Map style", id="map-style-dropdown")
 
 
-def create_dropdown():
+def create_dropdown_mapstyles():
     return (
         dcc.Dropdown(
             id="dropdown-mapstyles",
             options=[{"label": style, "value": style} for style in all_map_styles],
             placeholder="Select map style",
+            value="satellite-streets",
+        ),
+    )
+
+
+def create_dropdown_timezones():
+    return (
+        dcc.Dropdown(
+            id="dropdown-timezones",
+            options=[{"label": tz, "value": tz} for tz in all_timezones()],
+            placeholder="Select timezone",
+            value="Europe/Oslo",
         ),
     )
