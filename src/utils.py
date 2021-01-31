@@ -27,9 +27,38 @@ class SolarPath:
         self._location = location
         self._lat = lat
         self._lon = lon
-        self._changed_location = False
+        self._update_data = False
         self.c = 0.001
         self._timezone = timezone
+        self._solar_position_data = self.create_solarposition_year_data()
+        self._sunset_data = self.create_sunrise_sunset_data()
+
+    @property
+    def solar_position_data(self):
+        if self._update_data:
+            self.update_data()
+
+        return self._solar_position_data
+
+    @solar_position_data.setter
+    def solar_position_data(self, data):
+        self._solar_position_data = data
+
+    @property
+    def sunset_data(self):
+        if self._update_data:
+            self.update_data()
+
+        return self._sunset_data
+
+    @sunset_data.setter
+    def sunset_data(self, data):
+        self._sunset_data = data
+
+    def update_data(self):
+        self.solar_position_data = self.create_solarposition_year_data()
+        self.sunset_data = self.create_sunrise_sunset_data()
+        self._update_data = False
 
     @property
     def base_year(self) -> int:
@@ -58,25 +87,25 @@ class SolarPath:
     @timezone.setter
     def timezone(self, timezone: str):
         if timezone != self._timezone:
-            self._changed_location = True
+            self._update_data = True
             self._timezone = timezone
 
     @lat.setter
     def lat(self, lat: float):
         if lat != self._lat:
-            self._changed_location = True
+            self._update_data = True
             self._lat = lat
 
     @lon.setter
     def lon(self, lon: float):
         if lon != self._lon:
-            self._changed_location = True
+            self._update_data = True
             self._lon = lon
 
     @location.setter
     def location(self, location: str):
         if location != self._location:
-            self._changed_location = True
+            self._update_data = True
             self._location = location
 
     def create_solarposition_year_data(self) -> pd.DataFrame:
@@ -116,7 +145,7 @@ class SolarPath:
         return data
 
     def create_today_data(self, date: str) -> pd.DataFrame:
-        data = self.create_solarposition_year_data()
+        data = self.solar_position_data
         sun_hours = data[data["elevation"] > 0]
         today_data = sun_hours.loc[date]
         return today_data
@@ -179,7 +208,7 @@ class SolarPath:
 
     def sunrise_figure(self) -> go.Figure:
         base_year = datetime.datetime.today().year
-        data = self.create_sunrise_sunset_data()
+        data = self.sunset_data
         fig = go.Figure()
         sunrise_trace = go.Scatter(
             x=data.index, y=data["sunrise_hour"], name="Sunrise", showlegend=True
@@ -202,7 +231,7 @@ class SolarPath:
 
     def analemma_figure(self) -> go.Figure:
         base_year = datetime.datetime.today().year
-        data = self.create_solarposition_year_data()
+        data = self.solar_position_data
         data["date"] = data.index
         data["Hour"] = data.index.hour.astype(str)
         fig = px.scatter(
