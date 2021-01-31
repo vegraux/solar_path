@@ -116,6 +116,7 @@ class SolarPath:
             tz=self.timezone,
         )
         data = solarposition.get_solarposition(year_range, self.lat, self.lon)
+        data["date"] = data.index
         lon_factor = 1 / np.cos(np.radians(self.lat))
         azimuth = np.radians(data["azimuth"])
         elevation = np.radians(data["elevation"])
