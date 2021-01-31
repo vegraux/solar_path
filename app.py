@@ -11,23 +11,17 @@ import datetime
 import dash
 from dash.dependencies import Output, Input, State
 import dash_bootstrap_components as dbc
-from src.utils import (
-    create_map,
-    get_coordinates,
-    analemma_figure,
-    sunrise_figure,
-    determine_lat_lon,
-)
+
+from src.utils import SolarPath
 from src.items import (
     card_month_slider,
     create_dropdown_mapstyles,
     create_dropdown_timezones,
-    LAT,
-    LON,
 )
 import dash_html_components as html
 import dash_core_components as dcc
 
+solar = SolarPath()
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
 
 YEAR = datetime.datetime.today().year
@@ -95,11 +89,9 @@ app.layout = dbc.Container(layout)
     ],
 )
 def update_map_figure(month, day, button, map_style, timezone, location, lat, lon):
-    lat, lon = determine_lat_lon(lat, lon, location)
+    solar.update_attributes(lat, lon, location, timezone)
     date = f"{YEAR}.{month:0>2}.{day:0>2}"
-    return create_map(
-        lat=lat, lon=lon, date=date, map_style=map_style, timezone=timezone
-    )
+    return solar.create_map(date=date, map_style=map_style)
 
 
 @app.callback(
@@ -112,8 +104,8 @@ def update_map_figure(month, day, button, map_style, timezone, location, lat, lo
     ],
 )
 def update_analemma_figure(button, timezone, location, lat, lon):
-    lat, lon = determine_lat_lon(lat, lon, location)
-    return analemma_figure(lat=lat, lon=lon, timezone=timezone)
+    solar.update_attributes(lat, lon, location, timezone)
+    return solar.analemma_figure()
 
 
 @app.callback(
@@ -126,8 +118,8 @@ def update_analemma_figure(button, timezone, location, lat, lon):
     ],
 )
 def update_sunrise_figure(button, timezone, location, lat, lon):
-    lat, lon = determine_lat_lon(lat, lon, location)
-    return sunrise_figure(lat=lat, lon=lon, timezone=timezone)
+    solar.update_attributes(lat, lon, location, timezone)
+    return solar.sunrise_figure()
 
 
 if __name__ == "__main__":
