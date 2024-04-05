@@ -26,30 +26,33 @@ month_map = {
     11: "nov",
     12: "dec",
 }
-card_month_slider = [
-    dbc.CardBody(
-        [
-            html.H5("Select month and day", className="card-title"),
-            html.P("Pull the sliders to change month and day", className="card-text"),
-            dcc.Slider(
-                id="month-slider",
-                min=1,
-                max=12,
-                step=1,
-                value=1,
-                marks={k: month_map[k] for k in range(1, 13)},
-            ),
-            dcc.Slider(
-                id="day-slider",
-                min=1,
-                max=31,
-                step=1,
-                value=1,
-                marks={k: str(k) for k in range(1, 32)},
-            ),
-        ]
-    )
-]
+
+
+def create_date_sliders(month: int, day: int) -> list[dbc.CardBody]:
+    return [
+        dbc.CardBody(
+            [
+                html.H5("Select month and day", className="card-title"),
+                html.P("Pull the sliders to change month and day", className="card-text"),
+                dcc.Slider(
+                    id="month-slider",
+                    min=1,
+                    max=12,
+                    step=1,
+                    value=month,
+                    marks={k: month_map[k] for k in range(1, 13)},
+                ),
+                dcc.Slider(
+                    id="day-slider",
+                    min=1,
+                    max=31,
+                    step=1,
+                    value=day,
+                    marks={k: str(k) for k in range(1, 32)},
+                ),
+            ]
+        )
+    ]
 
 
 map_styles_token = [
