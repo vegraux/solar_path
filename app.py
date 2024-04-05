@@ -18,8 +18,8 @@ from src.items import (
     create_dropdown_mapstyles,
     create_dropdown_timezones,
 )
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html
+from dash import dcc
 
 solar = SolarPath()
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
@@ -61,6 +61,7 @@ layout = html.Div(
                 ),
             ]
         ),
+        html.Br(),
         dbc.Row(dbc.Col(dbc.Card(card_month_slider, color="light", inverse=False))),
         dcc.Graph(id="map-fig"),
         dcc.Graph(id="sunrise-fig"),
