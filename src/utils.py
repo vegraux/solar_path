@@ -174,7 +174,7 @@ class SolarPath:
                 hovertext=self.get_map_hovertext(today_data),
                 text=hours,
                 name="Hour of the day",
-                textfont=dict(family="sans serif", size=18, color="black"),
+                textfont=dict(size=15, color="black"),
             )
         )
 
