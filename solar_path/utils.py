@@ -16,8 +16,8 @@ from pvlib import solarposition
 __author__ = "Vegard Ulriksen Solberg"
 __email__ = "vegardsolberg@hotmail.com"
 
-from src.config import Config
-from src.items import LOCATOR, LAT, LON
+from solar_path.config import Config
+from solar_path.items import LOCATOR, LAT, LON
 
 env = Config()
 

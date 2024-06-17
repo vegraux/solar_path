@@ -12,8 +12,8 @@ import dash
 from dash.dependencies import Output, Input, State
 import dash_bootstrap_components as dbc
 
-from src.utils import SolarPath
-from src.items import (
+from solar_path.utils import SolarPath
+from solar_path.items import (
     create_date_sliders,
     create_dropdown_mapstyles,
     create_dropdown_timezones,
