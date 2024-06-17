@@ -6,7 +6,7 @@ authors = ["vegard ulriksen solberg <vegardsolberg@hotmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.12"
 numpy = "*"
 plotly = "*"
 pandas = "*"
@@ -14,7 +14,7 @@ dash = "*"
 dash-bootstrap-components = "*"
 pvlib = "*"
 geopy = "*"
-python-dotenv = "^0.19.2"
+pydantic-settings = "^2.2.1"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.13.0"
@@ -31,7 +31,7 @@ max-line-length = 100
 
 [tool.black]
 line-length = 100
-target-version = ["py37", "py38"]
+target-version = ["py312"]
 include = '\.pyi?$'
 exclude = '''
 /(

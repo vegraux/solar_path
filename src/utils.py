@@ -4,10 +4,8 @@
 
 """
 import datetime
-import os
 from typing import List
 
-import dotenv
 import geopy
 import numpy as np
 import plotly.graph_objects as go
@@ -18,9 +16,10 @@ from pvlib import solarposition
 __author__ = "Vegard Ulriksen Solberg"
 __email__ = "vegardsolberg@hotmail.com"
 
-dotenv.load_dotenv(dotenv.find_dotenv())
+from src.config import Config
 from src.items import LOCATOR, LAT, LON
 
+env = Config()
 
 class SolarPath:
     def __init__(self, location=None, lat=None, lon=None, timezone="Europe/Oslo"):
@@ -112,7 +111,7 @@ class SolarPath:
         year_range = pd.date_range(
             f"01/01/{self.base_year} 00:00:00",
             f"31/12/{self.base_year} 23:00:00",
-            freq="H",
+            freq="h",
             tz=self.timezone,
         )
         data = solarposition.get_solarposition(year_range, self.lat, self.lon)
@@ -175,7 +174,7 @@ class SolarPath:
                 hovertext=self.get_map_hovertext(today_data),
                 text=hours,
                 name="Hour of the day",
-                textfont=dict(family="sans serif", size=18, color="black"),
+                textfont=dict(size=15, color="black"),
             )
         )
 
@@ -194,7 +193,7 @@ class SolarPath:
             height=700,
             mapbox=go.layout.Mapbox(
                 style=map_style,
-                accesstoken=os.environ["token"],
+                accesstoken=env.token,
                 bearing=0,
                 center=go.layout.mapbox.Center(lat=self.lat, lon=self.lon),
                 pitch=0,

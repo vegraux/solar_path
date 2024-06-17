@@ -14,17 +14,17 @@ import dash_bootstrap_components as dbc
 
 from src.utils import SolarPath
 from src.items import (
-    card_month_slider,
+    create_date_sliders,
     create_dropdown_mapstyles,
     create_dropdown_timezones,
 )
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html
+from dash import dcc
 
 solar = SolarPath()
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
 
-YEAR = datetime.datetime.today().year
+today = datetime.datetime.today()
 layout = html.Div(
     [
         dbc.Row(dbc.Col(html.H1(id="header", children="Solar path"))),
@@ -61,7 +61,8 @@ layout = html.Div(
                 ),
             ]
         ),
-        dbc.Row(dbc.Col(dbc.Card(card_month_slider, color="light", inverse=False))),
+        html.Br(),
+        dbc.Row(dbc.Col(dbc.Card(create_date_sliders(today.month, today.day), color="light", inverse=False))),
         dcc.Graph(id="map-fig"),
         dcc.Graph(id="sunrise-fig"),
         dcc.Graph(id="analemma-fig"),
@@ -90,7 +91,7 @@ app.layout = dbc.Container(layout)
 )
 def update_map_figure(month, day, button, map_style, timezone, location, lat, lon):
     solar.update_attributes(lat, lon, location, timezone)
-    date = f"{YEAR}.{month:0>2}.{day:0>2}"
+    date = f"{today.year}.{month:0>2}.{day:0>2}"
     return solar.create_map(date=date, map_style=map_style)
 
 
